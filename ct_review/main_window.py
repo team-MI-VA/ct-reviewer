@@ -1,11 +1,18 @@
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QMainWindow, QStackedWidget
 
 from .review_screen import ReviewScreen
 from .startup_screen import StartupScreen
+
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+APP_ICON_PATH = PROJECT_ROOT / "assets" / "app_icon.png"
+WINDOWS_APP_USER_MODEL_ID = "ct_review.quality_review.viewer"
 
 
 STYLE = """
@@ -107,6 +114,8 @@ class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("CT Quality Review")
+        if APP_ICON_PATH.exists():
+            self.setWindowIcon(QIcon(str(APP_ICON_PATH)))
         self.resize(1280, 820)
 
         self.stack = QStackedWidget()
@@ -128,8 +137,22 @@ class MainWindow(QMainWindow):
 
 
 def main() -> None:
+    _set_windows_app_user_model_id()
     app = QApplication(sys.argv)
+    if APP_ICON_PATH.exists():
+        app.setWindowIcon(QIcon(str(APP_ICON_PATH)))
     app.setStyleSheet(STYLE)
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
+
+
+def _set_windows_app_user_model_id() -> None:
+    if sys.platform != "win32":
+        return
+    try:
+        import ctypes
+
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(WINDOWS_APP_USER_MODEL_ID)
+    except Exception:
+        pass

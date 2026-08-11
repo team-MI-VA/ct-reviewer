@@ -13,8 +13,8 @@ A small desktop application for reviewing local 3D CT NIfTI files (`.nii` and `.
 - Left and right arrow keys move to the previous and next CT.
 - Optional comment per decision.
 - Required quality checklist for accept/reject decisions.
-- Accept is blocked when any quality criterion is bad.
-- Reject is blocked when all quality criteria are good.
+- Accept requires abdomen/pelvis and sufficient z-axis to be Yes.
+- Reject requires abdomen/pelvis or sufficient z-axis to be No, or artifacts/problems to be Yes.
 - Existing CSV reports are resumed.
 - Startup screen has separate report actions for loading an existing CSV or creating a new one.
 - Optional outcome JSON can be loaded and displayed per matched CT file.
@@ -82,7 +82,7 @@ Durante la review, prima di premere **Accept** o **Reject** bisogna compilare i 
 ## CSV Columns
 
 ```csv
-file_name,file_path,status,comment,z_slices,include_abdomen,include_pelvis,sufficient_z_axis,readable_three_planes,artifacts_or_technical_issues,reviewed_at
+file_name,file_path,status,comment,z_slices,include_abdomen_pelvis,include_head,include_chest,sufficient_z_axis,artifacts_or_technical_issues,reviewed_at
 ```
 
 `file_path` is relative to the selected NIfTI folder. `status` is one of `accepted`, `rejected`, or `skipped`.

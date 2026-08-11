@@ -20,8 +20,8 @@ class ReviewRecord:
     comment: str
     z_slices: int
     reviewed_at: str
-    include_abdomen: str = ""
-    include_pelvis: str = ""
+    include_abdomen_pelvis: str = ""
+    include_head: str = ""
+    include_chest: str = ""
     sufficient_z_axis: str = ""
-    readable_three_planes: str = ""
     artifacts_or_technical_issues: str = ""

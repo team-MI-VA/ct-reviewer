@@ -15,12 +15,14 @@ from PySide6.QtWidgets import (
 
 
 CHECKLIST_ITEMS = [
-    ("include_abdomen", "Includes abdomen", True),
-    ("include_pelvis", "Includes pelvis", True),
+    ("include_abdomen_pelvis", "Includes abdomen/pelvis", True),
+    ("include_head", "Includes head", True),
+    ("include_chest", "Includes chest", True),
     ("sufficient_z_axis", "Sufficient z axis", True),
-    ("readable_three_planes", "Readable in 3 planes", True),
     ("artifacts_or_technical_issues", "Artifacts/problems", False),
 ]
+
+LABELS_BY_KEY = {key: label for key, label, _good_when_yes in CHECKLIST_ITEMS}
 
 
 class QualityChecklist(QWidget):
@@ -153,3 +155,21 @@ class QualityChecklist(QWidget):
 
     def is_quality_good(self) -> bool:
         return self.is_complete() and not self.bad_criteria()
+
+    def accept_blocking_criteria(self) -> list[str]:
+        values = self.values()
+        blockers: list[str] = []
+        for key in ("include_abdomen_pelvis", "sufficient_z_axis"):
+            if values.get(key) != "yes":
+                blockers.append(LABELS_BY_KEY[key])
+        return blockers
+
+    def reject_supporting_criteria(self) -> list[str]:
+        values = self.values()
+        criteria: list[str] = []
+        for key in ("include_abdomen_pelvis", "sufficient_z_axis"):
+            if values.get(key) == "no":
+                criteria.append(LABELS_BY_KEY[key])
+        if values.get("artifacts_or_technical_issues") == "yes":
+            criteria.append(LABELS_BY_KEY["artifacts_or_technical_issues"])
+        return criteria

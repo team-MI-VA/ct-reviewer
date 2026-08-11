@@ -9,10 +9,10 @@ from .models import ReviewRecord
 
 
 CHECKLIST_FIELDNAMES = [
-    "include_abdomen",
-    "include_pelvis",
+    "include_abdomen_pelvis",
+    "include_head",
+    "include_chest",
     "sufficient_z_axis",
-    "readable_three_planes",
     "artifacts_or_technical_issues",
 ]
 FIELDNAMES = ["file_name", "file_path", "status", "comment", "z_slices", *CHECKLIST_FIELDNAMES, "reviewed_at"]
@@ -42,10 +42,10 @@ class ReportStore:
                     status=row.get("status", ""),
                     comment=row.get("comment", ""),
                     z_slices=z_slices,
-                    include_abdomen=row.get("include_abdomen", ""),
-                    include_pelvis=row.get("include_pelvis", ""),
+                    include_abdomen_pelvis=_read_abdomen_pelvis(row),
+                    include_head=row.get("include_head", ""),
+                    include_chest=row.get("include_chest", ""),
                     sufficient_z_axis=row.get("sufficient_z_axis", ""),
-                    readable_three_planes=row.get("readable_three_planes", ""),
                     artifacts_or_technical_issues=row.get("artifacts_or_technical_issues", ""),
                     reviewed_at=row.get("reviewed_at", ""),
                 )
@@ -74,10 +74,10 @@ class ReportStore:
             status=status,
             comment=comment,
             z_slices=z_slices,
-            include_abdomen=checklist.get("include_abdomen", ""),
-            include_pelvis=checklist.get("include_pelvis", ""),
+            include_abdomen_pelvis=checklist.get("include_abdomen_pelvis", ""),
+            include_head=checklist.get("include_head", ""),
+            include_chest=checklist.get("include_chest", ""),
             sufficient_z_axis=checklist.get("sufficient_z_axis", ""),
-            readable_three_planes=checklist.get("readable_three_planes", ""),
             artifacts_or_technical_issues=checklist.get("artifacts_or_technical_issues", ""),
             reviewed_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
         )
@@ -96,11 +96,24 @@ class ReportStore:
                         "status": record.status,
                         "comment": record.comment,
                         "z_slices": record.z_slices,
-                        "include_abdomen": record.include_abdomen,
-                        "include_pelvis": record.include_pelvis,
+                        "include_abdomen_pelvis": record.include_abdomen_pelvis,
+                        "include_head": record.include_head,
+                        "include_chest": record.include_chest,
                         "sufficient_z_axis": record.sufficient_z_axis,
-                        "readable_three_planes": record.readable_three_planes,
                         "artifacts_or_technical_issues": record.artifacts_or_technical_issues,
                         "reviewed_at": record.reviewed_at,
                     }
                 )
+
+
+def _read_abdomen_pelvis(row: dict[str, str]) -> str:
+    combined = row.get("include_abdomen_pelvis", "")
+    if combined:
+        return combined
+    abdomen = row.get("include_abdomen", "")
+    pelvis = row.get("include_pelvis", "")
+    if abdomen == "yes" and pelvis == "yes":
+        return "yes"
+    if abdomen == "no" or pelvis == "no":
+        return "no"
+    return ""

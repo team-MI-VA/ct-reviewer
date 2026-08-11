@@ -418,10 +418,10 @@ class ReviewScreen(QWidget):
         self.comment_box.setPlainText(record.comment)
         self.checklist.set_values(
             {
-                "include_abdomen": record.include_abdomen,
-                "include_pelvis": record.include_pelvis,
+                "include_abdomen_pelvis": record.include_abdomen_pelvis,
+                "include_head": record.include_head,
+                "include_chest": record.include_chest,
                 "sufficient_z_axis": record.sufficient_z_axis,
-                "readable_three_planes": record.readable_three_planes,
                 "artifacts_or_technical_issues": record.artifacts_or_technical_issues,
             }
         )
@@ -435,20 +435,21 @@ class ReviewScreen(QWidget):
             )
             return False
 
-        bad_criteria = self.checklist.bad_criteria()
-        if status == "accepted" and bad_criteria:
+        accept_blockers = self.checklist.accept_blocking_criteria()
+        if status == "accepted" and accept_blockers:
             QMessageBox.warning(
                 self,
                 "Accept blocked",
-                "This CT cannot be accepted because at least one quality criterion is not satisfied:\n\n"
-                + "\n".join(f"- {criterion}" for criterion in bad_criteria),
+                "This CT can be accepted only when these criteria are Yes:\n\n"
+                + "\n".join(f"- {criterion}" for criterion in accept_blockers),
             )
             return False
-        if status == "rejected" and not bad_criteria:
+        reject_criteria = self.checklist.reject_supporting_criteria()
+        if status == "rejected" and not reject_criteria:
             QMessageBox.warning(
                 self,
                 "Reject blocked",
-                "This CT cannot be rejected because all quality criteria are satisfied.",
+                "This CT can be rejected only if abdomen/pelvis or z-axis is No, or artifacts/problems is Yes.",
             )
             return False
         return True
