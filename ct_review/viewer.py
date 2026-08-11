@@ -16,7 +16,7 @@ class SliceViewer(QWidget):
         self._lower = -160
         self._upper = 240
         self._last_slice: np.ndarray | None = None
-        self._physical_aspect = False
+        self._adapt_to_window = False
 
         self.title_label = QLabel(title)
         self.title_label.setObjectName("panelTitle")
@@ -66,8 +66,8 @@ class SliceViewer(QWidget):
         self._upper = upper
         self._render_current()
 
-    def set_physical_aspect(self, enabled: bool) -> None:
-        self._physical_aspect = enabled
+    def set_adapt_to_window(self, enabled: bool) -> None:
+        self._adapt_to_window = enabled
         self._paint_slice()
 
     def resizeEvent(self, event) -> None:
@@ -103,7 +103,7 @@ class SliceViewer(QWidget):
     def _target_display_size(self, image_width: int, image_height: int) -> tuple[int, int]:
         label_width = max(1, self.image_label.width())
         label_height = max(1, self.image_label.height())
-        if not self._physical_aspect:
+        if self._adapt_to_window:
             return label_width, label_height
         if self._volume is None:
             return label_width, label_height

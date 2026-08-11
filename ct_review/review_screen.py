@@ -82,9 +82,9 @@ class ReviewScreen(QWidget):
         self.range_slider.rangeChanged.connect(self._window_changed)
         self.range_label = QLabel("")
         self._window_changed(*self.range_slider.values())
-        self.physical_aspect_check = QCheckBox("Physical aspect")
-        self.physical_aspect_check.setChecked(False)
-        self.physical_aspect_check.toggled.connect(self._physical_aspect_changed)
+        self.adapt_to_window_check = QCheckBox("Adapt to window")
+        self.adapt_to_window_check.setChecked(False)
+        self.adapt_to_window_check.toggled.connect(self._adapt_to_window_changed)
 
         self.comment_box = QTextEdit()
         self.comment_box.setPlaceholderText("Comment")
@@ -151,7 +151,7 @@ class ReviewScreen(QWidget):
         range_row.addWidget(QLabel("HU range"))
         range_row.addWidget(self.range_slider, 1)
         range_row.addWidget(self.range_label)
-        range_row.addWidget(self.physical_aspect_check)
+        range_row.addWidget(self.adapt_to_window_check)
 
         action_row = QHBoxLayout()
         action_row.setSpacing(8)
@@ -212,7 +212,7 @@ class ReviewScreen(QWidget):
         self._load_errors.clear()
         self._populate_sidebar()
         self.sidebar.setVisible(False)
-        self.physical_aspect_check.setChecked(False)
+        self.adapt_to_window_check.setChecked(False)
         if not self.cases:
             QMessageBox.information(self, "No files", "No .nii or .nii.gz files were found in this folder.")
             return False
@@ -340,9 +340,9 @@ class ReviewScreen(QWidget):
         for viewer in self.viewers:
             viewer.set_window(lower, upper)
 
-    def _physical_aspect_changed(self, enabled: bool) -> None:
+    def _adapt_to_window_changed(self, enabled: bool) -> None:
         for viewer in self.viewers:
-            viewer.set_physical_aspect(enabled)
+            viewer.set_adapt_to_window(enabled)
 
     def _record_decision(self, status: str) -> None:
         if self.report is None or not self.cases:

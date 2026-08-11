@@ -8,7 +8,7 @@ A small desktop application for reviewing local 3D CT NIfTI files (`.nii` and `.
 - Three synchronized-independent anatomical views: axial, coronal, sagittal.
 - One slice slider per view.
 - Two-handle HU range control for display windowing.
-- Optional physical-aspect display. By default, views fill their panels for fast visual review.
+- Physical-aspect display by default, with an optional adapt-to-window view.
 - Accept, reject, or skip each CT.
 - Left and right arrow keys move to the previous and next CT.
 - Optional comment per decision.
