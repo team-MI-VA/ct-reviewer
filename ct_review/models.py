@@ -25,3 +25,8 @@ class ReviewRecord:
     include_chest: str = ""
     sufficient_z_axis: str = ""
     artifacts_or_technical_issues: str = ""
+    orientation: str = ""
+    slice_thickness: str = ""
+    dim_x: str = ""
+    dim_y: str = ""
+    dim_z: str = ""
