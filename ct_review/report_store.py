@@ -15,7 +15,17 @@ CHECKLIST_FIELDNAMES = [
     "sufficient_z_axis",
     "artifacts_or_technical_issues",
 ]
-FIELDNAMES = ["file_name", "file_path", "status", "comment", "z_slices", *CHECKLIST_FIELDNAMES, "reviewed_at"]
+VOLUME_FIELDNAMES = ["orientation", "slice_thickness", "dim_x", "dim_y", "dim_z"]
+FIELDNAMES = [
+    "file_name",
+    "file_path",
+    "status",
+    "comment",
+    "z_slices",
+    *CHECKLIST_FIELDNAMES,
+    *VOLUME_FIELDNAMES,
+    "reviewed_at",
+]
 
 
 class ReportStore:
@@ -47,6 +57,11 @@ class ReportStore:
                     include_chest=row.get("include_chest", ""),
                     sufficient_z_axis=row.get("sufficient_z_axis", ""),
                     artifacts_or_technical_issues=row.get("artifacts_or_technical_issues", ""),
+                    orientation=row.get("orientation", ""),
+                    slice_thickness=row.get("slice_thickness", ""),
+                    dim_x=row.get("dim_x", ""),
+                    dim_y=row.get("dim_y", ""),
+                    dim_z=row.get("dim_z", ""),
                     reviewed_at=row.get("reviewed_at", ""),
                 )
 
@@ -66,8 +81,10 @@ class ReportStore:
         comment: str,
         z_slices: int,
         checklist: dict[str, str] | None = None,
+        volume_info: dict[str, str] | None = None,
     ) -> None:
         checklist = checklist or {}
+        volume_info = volume_info or {}
         self.records[file_name] = ReviewRecord(
             file_name=file_name,
             file_path=relative_path,
@@ -79,6 +96,11 @@ class ReportStore:
             include_chest=checklist.get("include_chest", ""),
             sufficient_z_axis=checklist.get("sufficient_z_axis", ""),
             artifacts_or_technical_issues=checklist.get("artifacts_or_technical_issues", ""),
+            orientation=volume_info.get("orientation", ""),
+            slice_thickness=volume_info.get("slice_thickness", ""),
+            dim_x=volume_info.get("dim_x", ""),
+            dim_y=volume_info.get("dim_y", ""),
+            dim_z=volume_info.get("dim_z", ""),
             reviewed_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
         )
         self.save()
@@ -101,6 +123,11 @@ class ReportStore:
                         "include_chest": record.include_chest,
                         "sufficient_z_axis": record.sufficient_z_axis,
                         "artifacts_or_technical_issues": record.artifacts_or_technical_issues,
+                        "orientation": record.orientation,
+                        "slice_thickness": record.slice_thickness,
+                        "dim_x": record.dim_x,
+                        "dim_y": record.dim_y,
+                        "dim_z": record.dim_z,
                         "reviewed_at": record.reviewed_at,
                     }
                 )

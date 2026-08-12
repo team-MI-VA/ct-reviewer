@@ -12,6 +12,7 @@ class LoadedVolume:
     path: Path
     data: np.ndarray
     voxel_sizes: tuple[float, float, float]
+    orientation: str
 
     @property
     def shape(self) -> tuple[int, int, int]:
@@ -21,16 +22,21 @@ class LoadedVolume:
     def z_slices(self) -> int:
         return self.data.shape[2]
 
+    @property
+    def slice_thickness(self) -> float:
+        return self.voxel_sizes[2]
+
 
 def load_nifti(path: Path) -> LoadedVolume:
     image = nib.load(str(path))
+    orientation = "".join(nib.aff2axcodes(image.affine))
     canonical = nib.as_closest_canonical(image)
     data = canonical.get_fdata(dtype=np.float32)
     data = np.nan_to_num(data, copy=False)
 
     zooms = canonical.header.get_zooms()[:3]
     voxel_sizes = tuple(float(value) for value in zooms)
-    return LoadedVolume(path=Path(path), data=data, voxel_sizes=voxel_sizes)
+    return LoadedVolume(path=Path(path), data=data, voxel_sizes=voxel_sizes, orientation=orientation)
 
 
 def slice_for_view(volume: LoadedVolume, view: str, index: int) -> np.ndarray:

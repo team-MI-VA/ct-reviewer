@@ -88,6 +88,9 @@ QPushButton:disabled {
 #warningLabel {
     color: #92400e;
 }
+#volumeInfoLabel {
+    color: #4b5563;
+}
 #outcomePanel {
     background: #ffffff;
     border: 1px solid #cfd6e1;

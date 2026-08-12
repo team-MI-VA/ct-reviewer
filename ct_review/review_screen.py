@@ -68,6 +68,8 @@ class ReviewScreen(QWidget):
         self.progress_label = QLabel("")
         self.warning_label = QLabel("")
         self.warning_label.setObjectName("warningLabel")
+        self.volume_info_label = QLabel("")
+        self.volume_info_label.setObjectName("volumeInfoLabel")
         self.outcome_label = QLabel("")
         self.outcome_label.setObjectName("outcomePanel")
         self.outcome_label.setWordWrap(True)
@@ -177,6 +179,7 @@ class ReviewScreen(QWidget):
         content_layout.setContentsMargins(10, 10, 10, 10)
         content_layout.setSpacing(8)
         content_layout.addLayout(top_row)
+        content_layout.addWidget(self.volume_info_label)
         content_layout.addWidget(self.warning_label)
         content_layout.addLayout(viewer_row, 10)
         content_layout.addLayout(range_row)
@@ -270,6 +273,7 @@ class ReviewScreen(QWidget):
         self.case_label.setText(case.file_name)
         self.progress_label.setText(f"{index + 1} / {len(self.cases)}")
         self.warning_label.setText("")
+        self.volume_info_label.setText("")
         self._update_outcome_panel(case)
         self._load_existing_review(case)
         self.case_list.setCurrentRow(index)
@@ -317,6 +321,12 @@ class ReviewScreen(QWidget):
         self._current_volume = volume
         for viewer in self.viewers:
             viewer.set_volume(volume)
+        dim_x, dim_y, dim_z = volume.shape
+        self.volume_info_label.setText(
+            f"Orientation: {volume.orientation}  |  "
+            f"Dimensions: {dim_x} x {dim_y} x {dim_z}  |  "
+            f"Slice thickness: {volume.slice_thickness:.2f} mm"
+        )
         if volume.z_slices < self.min_slices:
             self.warning_label.setText(
                 f"Warning: axial slice count is {volume.z_slices}, below configured minimum {self.min_slices}."
@@ -332,6 +342,7 @@ class ReviewScreen(QWidget):
         message = self._load_errors.get(case.file_name, "Unknown loading error")
         for viewer in self.viewers:
             viewer.clear("Load failed")
+        self.volume_info_label.setText("")
         self.warning_label.setText(f"Could not load this file: {message}")
         self._set_action_buttons_enabled(False)
 
@@ -350,7 +361,18 @@ class ReviewScreen(QWidget):
         if status in {"accepted", "rejected"} and not self._validate_quality_decision(status):
             return
         case = self.cases[self.current_index]
-        z_slices = self._current_volume.z_slices if self._current_volume else 0
+        volume = self._current_volume
+        z_slices = volume.z_slices if volume else 0
+        volume_info: dict[str, str] = {}
+        if volume is not None:
+            dim_x, dim_y, dim_z = volume.shape
+            volume_info = {
+                "orientation": volume.orientation,
+                "slice_thickness": f"{volume.slice_thickness:.3f}",
+                "dim_x": str(dim_x),
+                "dim_y": str(dim_y),
+                "dim_z": str(dim_z),
+            }
         self.report.upsert(
             file_name=case.file_name,
             relative_path=case.relative_path,
@@ -358,6 +380,7 @@ class ReviewScreen(QWidget):
             comment=self.comment_box.toPlainText().strip(),
             z_slices=z_slices,
             checklist=self.checklist.values(),
+            volume_info=volume_info,
         )
         self._refresh_sidebar_item(self.current_index)
         self.comment_box.clear()
@@ -411,9 +434,11 @@ class ReviewScreen(QWidget):
         self.comment_box.clear()
         self.checklist.clear()
         if not self.report:
+            self.checklist.set_default_flags()
             return
         record = self.report.get_record(case.file_name)
         if not record:
+            self.checklist.set_default_flags()
             return
         self.comment_box.setPlainText(record.comment)
         self.checklist.set_values(

@@ -24,6 +24,13 @@ CHECKLIST_ITEMS = [
 
 LABELS_BY_KEY = {key: label for key, label, _good_when_yes in CHECKLIST_ITEMS}
 
+DEFAULT_FLAGS = {
+    "include_abdomen_pelvis": "yes",
+    "include_head": "no",
+    "include_chest": "yes",
+    "artifacts_or_technical_issues": "no",
+}
+
 
 class QualityChecklist(QWidget):
     def __init__(self, parent=None) -> None:
@@ -132,6 +139,14 @@ class QualityChecklist(QWidget):
         group.setExclusive(False)
         button.setChecked(False)
         group.setExclusive(True)
+
+    def set_default_flags(self) -> None:
+        for key, value in DEFAULT_FLAGS.items():
+            yes_button, no_button = self._buttons[key]
+            if value == "yes":
+                yes_button.setChecked(True)
+            else:
+                no_button.setChecked(True)
 
     def set_sufficient_z_axis_auto(self, sufficient: bool) -> None:
         yes_button, no_button = self._buttons["sufficient_z_axis"]
