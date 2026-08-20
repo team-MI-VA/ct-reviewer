@@ -11,6 +11,9 @@ A small desktop application for reviewing local 3D CT NIfTI files (`.nii` and `.
 - Physical-aspect display by default, with an optional adapt-to-window view.
 - Accept, reject, or skip each CT.
 - Left and right arrow keys move to the previous and next CT.
+- `A` triggers Accept.
+- `C` toggles the Includes chest checklist value.
+- Up and down arrow keys move the coronal slice slider.
 - Optional comment per decision.
 - Required quality checklist for accept/reject decisions.
 - Accept requires abdomen/pelvis and sufficient z-axis to be Yes.

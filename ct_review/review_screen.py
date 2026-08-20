@@ -136,6 +136,19 @@ class ReviewScreen(QWidget):
         if event.key() == Qt.Key.Key_Left:
             self._go_to_relative_case(-1)
             return True
+        if event.key() == Qt.Key.Key_Up:
+            self.coronal_viewer.move_slice(1)
+            return True
+        if event.key() == Qt.Key.Key_Down:
+            self.coronal_viewer.move_slice(-1)
+            return True
+        if event.key() == Qt.Key.Key_C:
+            self.checklist.toggle_value("include_chest")
+            return True
+        if event.key() == Qt.Key.Key_A:
+            if self.accept_button.isEnabled():
+                self.accept_button.click()
+            return True
         return False
 
     def _build_layout(self) -> None:

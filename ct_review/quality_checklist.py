@@ -148,6 +148,16 @@ class QualityChecklist(QWidget):
             else:
                 no_button.setChecked(True)
 
+    def toggle_value(self, key: str) -> None:
+        buttons = self._buttons.get(key)
+        if buttons is None:
+            return
+        yes_button, no_button = buttons
+        if yes_button.isChecked():
+            no_button.setChecked(True)
+        else:
+            yes_button.setChecked(True)
+
     def set_sufficient_z_axis_auto(self, sufficient: bool) -> None:
         yes_button, no_button = self._buttons["sufficient_z_axis"]
         yes_button.setChecked(sufficient)

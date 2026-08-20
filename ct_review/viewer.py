@@ -70,6 +70,13 @@ class SliceViewer(QWidget):
         self._adapt_to_window = enabled
         self._paint_slice()
 
+    def move_slice(self, delta: int) -> None:
+        if not self.slider.isEnabled():
+            return
+        value = self.slider.value() + delta
+        value = max(self.slider.minimum(), min(value, self.slider.maximum()))
+        self.slider.setValue(value)
+
     def resizeEvent(self, event) -> None:
         super().resizeEvent(event)
         self._paint_slice()
