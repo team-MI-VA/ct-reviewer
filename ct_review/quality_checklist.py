@@ -33,8 +33,16 @@ DEFAULT_FLAGS = {
 
 
 class QualityChecklist(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(
+        self,
+        parent=None,
+        *,
+        items: list[tuple[str, str, bool]] | None = None,
+        default_flags: dict[str, str] | None = None,
+    ) -> None:
         super().__init__(parent)
+        self._items = items if items is not None else CHECKLIST_ITEMS
+        self._default_flags = default_flags if default_flags is not None else DEFAULT_FLAGS
         self._buttons: dict[str, tuple[QRadioButton, QRadioButton]] = {}
         self._groups: list[QButtonGroup] = []
         self._button_groups: dict[QRadioButton, QButtonGroup] = {}
@@ -59,7 +67,7 @@ class QualityChecklist(QWidget):
         grid.addWidget(QLabel("Yes"), 0, 1)
         grid.addWidget(QLabel("No"), 0, 2)
 
-        for row, (key, label, _good_when_yes) in enumerate(CHECKLIST_ITEMS, start=1):
+        for row, (key, label, _good_when_yes) in enumerate(self._items, start=1):
             yes_button = QRadioButton()
             no_button = QRadioButton()
             group = QButtonGroup(self)
@@ -141,8 +149,11 @@ class QualityChecklist(QWidget):
         group.setExclusive(True)
 
     def set_default_flags(self) -> None:
-        for key, value in DEFAULT_FLAGS.items():
-            yes_button, no_button = self._buttons[key]
+        for key, value in self._default_flags.items():
+            buttons = self._buttons.get(key)
+            if buttons is None:
+                continue
+            yes_button, no_button = buttons
             if value == "yes":
                 yes_button.setChecked(True)
             else:
@@ -159,7 +170,10 @@ class QualityChecklist(QWidget):
             yes_button.setChecked(True)
 
     def set_sufficient_z_axis_auto(self, sufficient: bool) -> None:
-        yes_button, no_button = self._buttons["sufficient_z_axis"]
+        buttons = self._buttons.get("sufficient_z_axis")
+        if buttons is None:
+            return
+        yes_button, no_button = buttons
         yes_button.setChecked(sufficient)
         no_button.setChecked(not sufficient)
 
@@ -169,7 +183,7 @@ class QualityChecklist(QWidget):
     def bad_criteria(self) -> list[str]:
         values = self.values()
         bad: list[str] = []
-        for key, label, good_when_yes in CHECKLIST_ITEMS:
+        for key, label, good_when_yes in self._items:
             value = values.get(key, "")
             if not value:
                 continue

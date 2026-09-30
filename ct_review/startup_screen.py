@@ -20,8 +20,17 @@ from PySide6.QtWidgets import (
 class StartupScreen(QWidget):
     startRequested = Signal(str, str, int, str)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(
+        self,
+        parent=None,
+        *,
+        title: str = "CT Quality Review",
+        subtitle: str = "Select a folder and a CSV report to start reviewing.",
+        show_min_slices: bool = True,
+        default_report_name: str = "ct_review_report.csv",
+    ) -> None:
         super().__init__(parent)
+        self.default_report_name = default_report_name
         self.folder_input = QLineEdit()
         self.report_input = QLineEdit()
         self.report_input.textChanged.connect(self._update_report_status)
@@ -63,12 +72,13 @@ class StartupScreen(QWidget):
         form.addRow("Report CSV", report_row)
         form.addRow("", self.report_status)
         form.addRow("Outcome JSON", outcome_row)
-        form.addRow("Minimum axial slices", self.min_slices_input)
+        if show_min_slices:
+            form.addRow("Minimum axial slices", self.min_slices_input)
 
-        title = QLabel("CT Quality Review")
-        title.setObjectName("appTitle")
-        subtitle = QLabel("Select a folder and a CSV report to start reviewing.")
-        subtitle.setObjectName("subtitle")
+        title_label = QLabel(title)
+        title_label.setObjectName("appTitle")
+        subtitle_label = QLabel(subtitle)
+        subtitle_label.setObjectName("subtitle")
 
         start_button = QPushButton("Start review")
         self._disable_enter_activation(start_button)
@@ -79,8 +89,8 @@ class StartupScreen(QWidget):
         layout.setContentsMargins(48, 48, 48, 48)
         layout.setSpacing(16)
         layout.addStretch(1)
-        layout.addWidget(title)
-        layout.addWidget(subtitle)
+        layout.addWidget(title_label)
+        layout.addWidget(subtitle_label)
         layout.addSpacing(12)
         layout.addLayout(form)
         layout.addWidget(start_button)
@@ -96,7 +106,7 @@ class StartupScreen(QWidget):
             return
         self.folder_input.setText(folder)
         if not self.report_input.text().strip():
-            self.report_input.setText(str(Path(folder) / "ct_review_report.csv"))
+            self.report_input.setText(str(Path(folder) / self.default_report_name))
 
     def _load_existing_report(self) -> None:
         path, _ = QFileDialog.getOpenFileName(self, "Load existing report CSV", filter="CSV files (*.csv)")

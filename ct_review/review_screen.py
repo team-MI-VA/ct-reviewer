@@ -33,7 +33,9 @@ from .viewer import SliceViewer
 
 
 class ReviewScreen(QWidget):
-    def __init__(self, parent=None) -> None:
+    report_store_class = ReportStore
+
+    def __init__(self, parent=None, *, checklist: QualityChecklist | None = None) -> None:
         super().__init__(parent)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.cases: list[CaseInfo] = []
@@ -92,7 +94,7 @@ class ReviewScreen(QWidget):
         self.comment_box.setPlaceholderText("Comment")
         self.comment_box.setFixedHeight(48)
         self.comment_box.setSizeAdjustPolicy(QAbstractScrollArea.SizeAdjustPolicy.AdjustIgnored)
-        self.checklist = QualityChecklist()
+        self.checklist = checklist if checklist is not None else QualityChecklist()
 
         self.accept_button = QPushButton("Accept")
         self.reject_button = QPushButton("Reject")
@@ -211,7 +213,7 @@ class ReviewScreen(QWidget):
 
     def start_review(self, folder: str, report_path: str, min_slices: int, outcome_json: str = "") -> bool:
         self.folder = Path(folder)
-        self.report = ReportStore(Path(report_path))
+        self.report = self.report_store_class(Path(report_path))
         self.min_slices = min_slices
         self.outcomes = None
         if outcome_json:

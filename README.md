@@ -46,6 +46,23 @@ pip install -r requirements.txt
 python app.py
 ```
 
+## Second reviewer
+
+The second-review workflow is a separate launcher, so it does not change the original checklist or report format:
+
+```powershell
+python crop_notable_reviewer_app.py
+```
+
+Its checklist contains these defaults:
+
+- Table removed: **Yes**
+- Abdomen/pelvis cropped coverage: **Yes**
+- LPS orientation: **Yes**
+- Artifacts/problems: **No**
+
+Accept is available only when all four answers match those expected values. Reject requires at least one answer that differs. The second-review report uses its own default file name, `ct_second_review_report.csv`, and stores the four criteria in dedicated columns.
+
 ## Schermata iniziale
 
 Nella schermata iniziale bisogna scegliere la cartella che contiene i file CT in formato `ct.nii.gz`/`.nii.gz`, organizzati senza sottocartelle e con nomi come:
@@ -89,6 +106,12 @@ file_name,file_path,status,comment,z_slices,include_abdomen_pelvis,include_head,
 ```
 
 `file_path` is relative to the selected NIfTI folder. `status` is one of `accepted`, `rejected`, or `skipped`.
+
+The second-review CSV columns are:
+
+```csv
+file_name,file_path,status,comment,z_slices,table_removed,abdomen_pelvis_cropped_coverage,lps_orientation,artifacts_or_problems,orientation,slice_thickness,dim_x,dim_y,dim_z,reviewed_at
+```
 
 ## Notes
 

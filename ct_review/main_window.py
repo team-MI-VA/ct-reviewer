@@ -114,16 +114,22 @@ QPushButton:disabled {
 
 
 class MainWindow(QMainWindow):
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        *,
+        window_title: str = "CT Quality Review",
+        startup: StartupScreen | None = None,
+        review: ReviewScreen | None = None,
+    ) -> None:
         super().__init__()
-        self.setWindowTitle("CT Quality Review")
+        self.setWindowTitle(window_title)
         if APP_ICON_PATH.exists():
             self.setWindowIcon(QIcon(str(APP_ICON_PATH)))
         self.resize(1280, 820)
 
         self.stack = QStackedWidget()
-        self.startup = StartupScreen()
-        self.review = ReviewScreen()
+        self.startup = startup if startup is not None else StartupScreen()
+        self.review = review if review is not None else ReviewScreen()
         self.stack.addWidget(self.startup)
         self.stack.addWidget(self.review)
         self.setCentralWidget(self.stack)
@@ -150,12 +156,12 @@ def main() -> None:
     sys.exit(app.exec())
 
 
-def _set_windows_app_user_model_id() -> None:
+def _set_windows_app_user_model_id(app_id: str = WINDOWS_APP_USER_MODEL_ID) -> None:
     if sys.platform != "win32":
         return
     try:
         import ctypes
 
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(WINDOWS_APP_USER_MODEL_ID)
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
     except Exception:
         pass
